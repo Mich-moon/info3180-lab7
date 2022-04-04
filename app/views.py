@@ -19,6 +19,31 @@ def index():
     return jsonify(message="This is the beginning of our API")
 
 
+@app.route('/api/upload', methods=['POST'])
+def upload():
+    # Instantiate your form class
+    form = UploadForm()
+
+    if request.method == 'POST':
+        # Validate file upload on submit
+        if form.validate_on_submit():
+            # Get file data and save to your uploads folder
+            desc = form.description.data
+            image = form.photo.data
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(
+                os.environ.get('UPLOAD_FOLDER'), filename
+            ))
+
+            return jsonify(
+                message="File Upload Successful",
+                filename=filename,
+                description=desc
+            )
+
+    return jsonify(errors=form_errors(form))
+
+
 ###
 # The functions below should be applicable to all Flask apps.
 ###
@@ -31,12 +56,13 @@ def form_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
             message = u"Error in the %s field - %s" % (
-                    getattr(form, field).label.text,
-                    error
-                )
+                getattr(form, field).label.text,
+                error
+            )
             error_messages.append(message)
 
     return error_messages
+
 
 @app.route('/<file_name>.txt')
 def send_text_file(file_name):
@@ -64,4 +90,4 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port="8080")
+    app.run(debug=True, host="0.0.0.0", port="8080")
