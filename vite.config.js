@@ -10,5 +10,13 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    // let VueJS proxy requests for /api* routes to your Flask API
+    proxy: {
+      '^/api*': {
+        target: 'http://localhost:8080/'
+      }
+    }
   }
 })
